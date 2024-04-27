@@ -1,4 +1,6 @@
-FROM nvidia/cuda:12.3.1-base-ubuntu20.04
+# FROM nvidia/cuda:12.3.1-base-ubuntu20.04
+FROM nvcr.io/nvidia/isaac-sim:2023.1.1
+
 # FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -42,18 +44,22 @@ source ~/.bashconfig.sh\n\
 " >> /root/.bashrc
 
 # 生成~/.startup.sh脚本
-RUN echo '#!/bin/bash\n\
-# Your startup commands here\n\
-echo "Hello from ~/.startup.sh!"\n\
-# Example: Start SSH service\n\
-service ssh start\n\
-# Example: Start some other command\n\
-# your_command_here\n
-vncserver :0\n\
-cd\n\
-bash\
-' > /root/.startup.sh && \
-    chmod +x /root/.startup.sh
+COPY startup.sh /root/.startup.sh
+RUN chmod +x /root/.startup.sh
+RUN touch /root/.Xauthority && chmod 600 /root/.Xauthority
+
+# RUN echo '#!/bin/bash\n\
+# # Your startup commands here\n\
+# echo "Hello from ~/.startup.sh!"\n\
+# # Example: Start SSH service\n\
+# service ssh start\n\
+# # Example: Start some other command\n\
+# # your_command_here\n
+# vncserver :0\n\
+# cd\n\
+# bash\
+# ' > /root/.startup.sh && \
+#     chmod +x /root/.startup.sh
 
 # 设置容器在启动时执行~/.startup.sh脚本,CMD可覆盖
 # CMD ["/bin/bash", "/root/.startup.sh"]

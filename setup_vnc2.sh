@@ -1,14 +1,30 @@
 #!/bin/bash
+
 # 安装 TightVNC Server
 # sudo apt-get update
-# sudo apt-get install -y tightvncserver xfce4 xfce4-terminal
-mkdir -p /home/$SUDO_USER/.vnc/
+sudo apt-get install -y tigervnc-standalone-server 
+# sudo apt-get install -y xfce4 xfce4-terminal xvfb
+
 # 设置使用xfce4桌面
-echo "" > /home/$SUDO_USER/.vnc/xstartup && \
-echo "#!/bin/bash" > /home/$SUDO_USER/.vnc/xstartup && \
-echo "startxfce4 &" >> /home/$SUDO_USER/.vnc/xstartup && \
-echo "xsetroot -solid grey" >> /home/$SUDO_USER/.vnc/xstartup && \
-chmod +x /home/$SUDO_USER/.vnc/xstartup
+# echo "" > ~/.vnc/xstartup && \
+# echo "#!/bin/bash" > ~/.vnc/xstartup && \
+# echo "startxfce4 &" >> ~/.vnc/xstartup && \
+# echo "xsetroot -solid grey" >> ~/.vnc/xstartup && \
+
+echo '#!/bin/sh
+# startxfce4 &
+# xsetroot -solid grey
+unset SESSION_MANAGER
+unset DBUS_SESSION_BUS_ADDRESS
+# Xvfb -ac :1 -screen 0 1280x1024x24 &
+# export DISPLAY=:1
+export XDG_SESSION_TYPE=x11
+xsetroot -solid grey
+gnome-session &
+' > ~/.vnc/xstartup
+
+
+chmod +x ~/.vnc/xstartup
 
 # 
 # 设置使用xvfb的
@@ -27,8 +43,8 @@ After=network.target
 
 [Service]
 Type=forking
-ExecStart=/usr/bin/tightvncserver :1 -geometry 1920x1080 -depth 24
-User=$SUDO_USER
+ExecStart=/usr/bin/vncserver :1 -geometry 1920x1080 -localhost no -depth 24
+User=$USER
 Restart=on-failure
 RestartSec=5s
 
@@ -43,4 +59,6 @@ sudo systemctl daemon-reload
 sudo systemctl enable tightvncserver.service
 
 # 启动服务
-sudo systemctl start tightvncserver.service
+vncserver --kill :1
+sudo vncserver --kill :1
+sudo systemctl restart tightvncserver.service
